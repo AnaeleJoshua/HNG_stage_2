@@ -33,7 +33,7 @@ try{
   //   // storage: "./storage/data.db", // Path to the file that will store the SQLite DB.
   // });
 
-   sequelize = new Sequelize(process.env.DATABASE_URL, {
+   sequelize = new Sequelize(process.env.HNG_URL, {
     dialect: 'postgres',
     protocol: 'postgres',
     logging: false,
