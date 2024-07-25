@@ -64,7 +64,7 @@ sequelize
 app.get("/",(req,res)=>res.send('Express on vercel'))
 // Attaching the Authentication and User Routes to the app.
 app.use("/auth", AuthorizationRoutes);
-app.use("/api/users", UserRoutes);
+// app.use("/api/users", UserRoutes);
 // app.use("/organisations", OrganizationRoutes);
 app.listen(port,()=>console.log(`server ready on port:${port}`))
 }).catch((err) => {
