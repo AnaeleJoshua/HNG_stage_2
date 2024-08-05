@@ -25,7 +25,7 @@ module.exports = {
       return this.model
     },
   
-    createUser: (user) => {
+    createUserOrganisation: (user) => {
       return this.model.create(user);
     },
   

@@ -52,7 +52,7 @@ module.exports = {
          const payload = req.body
          const userId = req.user.userId;
         
-        console.log(userId)
+        // console.log(userId)
         //  console.log(user)
         let transaction;
          try {
@@ -62,7 +62,7 @@ module.exports = {
             const newOrg = await organisationModel.createOrganisation(Object.assign(payload,{"createdBy":`${user.firstName} ${user.lastName}`}),{transaction})
             const orgId = newOrg.orgId
 
-            const newUserOrg = await userOrganisationModel.createUser({userId,orgId},{transaction})
+            const newUserOrg = await userOrganisationModel.createUserOrganisation({userId,orgId},{transaction})
            await transaction.commit()
 
             return res.status(201).json({
@@ -87,5 +87,31 @@ module.exports = {
                 "err":err
             })
          }
+    },
+    addUserToOrganisation:async(req,res)=>{
+        const orgId = req.params.orgId
+        const userId = parseInt(req.body.userId)
+        let transaction
+        try{
+            transaction = await db_transaction()
+            const organisation = await userOrganisationModel.createUserOrganisation({userId,orgId},{transaction})
+            //commit transaction
+            await transaction.commit()
+            return res.status(200).json({
+                "status":"success"
+            })
+        }catch(err){
+            if(transaction){
+                await transaction.rollback()
+             }
+             return res.status(401).json({
+                 "status":"Bad Request",
+                 "message":"Client error",
+                 "statusCode":400,
+                 "err":err
+             })
+        }
+
+
     }
 }
