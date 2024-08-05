@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const { User, Organisation } = require("./index");
+// const { User, Organisation } = require("./index");
 const UserOrganisationModel = {
     userId: {
         type: DataTypes.INTEGER,
