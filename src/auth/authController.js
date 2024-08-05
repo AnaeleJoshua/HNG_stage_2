@@ -1,11 +1,12 @@
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-
+const dotenv = require('dotenv')
+dotenv.config()
 const UserModel = require("../models/User");
 const db_transaction = require('../models/index').db_transaction
 const OrganisationModel = require("../models/Organisation");
 
-const { jwtSecret, jwtExpirationInSeconds } = require("../../config/config");
+// const { jwtSecret, jwtExpirationInSeconds } = require("../../config/config");
 // const { userInfo } = require("os");
 
 // Generates an Access Token using username and userId for the user's authentication
@@ -15,9 +16,9 @@ const generateAccessToken = (email, userId) => {
         userId,
         email,
       },
-      jwtSecret,
+      process.env.JWT_SECRET,
       {
-        expiresIn: jwtExpirationInSeconds,
+        expiresIn: process.env.JWT_EXPIRATION_IN_SEC,
       }
     );
   };

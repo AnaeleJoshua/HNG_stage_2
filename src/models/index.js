@@ -7,17 +7,17 @@ const UserOrganisationModel = require("./UserOrganisation");
 
 let sequelize
 try{
-   sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD,{
-    host:"localhost",
-    dialect: "postgres",
-    // storage: "./storage/data.db", // Path to the file that will store the SQLite DB.
-  });
+//    sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD,{
+//     host:"localhost",
+//     dialect: "postgres",
+//     // storage: "./storage/data.db", // Path to the file that will store the SQLite DB.
+//   });
 
-//    sequelize = new Sequelize(process.env.HNG_URL, {
-//     dialect: 'postgres',
-//     protocol: 'postgres',
-//     logging: false,
-// });
+   sequelize = new Sequelize(process.env.HNG_URL, {
+    dialect: 'postgres',
+    protocol: 'postgres',
+    logging: false,
+});
 // console.log(sequelize)
 
 
