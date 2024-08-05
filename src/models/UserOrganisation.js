@@ -1,12 +1,21 @@
 const { DataTypes } = require("sequelize");
+const { User, Organisation } = require("./index");
 const UserOrganisationModel = {
     userId: {
         type: DataTypes.INTEGER,
         // autoIncrement: true,
+        // references:{
+        //   model:User,
+        //   key:'userId'
+        // }
       },
       orgId: {
         type: DataTypes.INTEGER,
         // autoIncrement: true,
+        // references:{
+        //   model:Organisation,
+        //   key:'orgId'
+        // }
       },
 }
 
@@ -16,9 +25,9 @@ module.exports = {
       return this.model
     },
   
-    // createUser: (user) => {
-    //   return this.model.create(user);
-    // },
+    createUser: (user) => {
+      return this.model.create(user);
+    },
   
   };
   

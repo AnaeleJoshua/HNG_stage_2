@@ -9,14 +9,14 @@ const OrganisationModel = {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique:true
-  },
-  lastName: {
-    type: DataTypes.STRING,
-    allowNull: false
   },
   description: {
     type: DataTypes.STRING,
+  },
+  createdBy:{
+    type:DataTypes.STRING,
+    allowNull:false
+
   }
 };
 
@@ -33,6 +33,11 @@ module.exports = {
     findOrganisation: (query) => {
       return this.model.findOne({
         where: query,
+      });
+    },
+    findAllOrganisation : (query) => {
+      return this.model.findAll({
+        include: query
       });
     },
   

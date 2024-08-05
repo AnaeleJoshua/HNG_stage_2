@@ -2,6 +2,8 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
 const UserModel = require("../models/User");
+const db_transaction = require('../models/index').db_transaction
+const OrganisationModel = require("../models/Organisation");
 
 const { jwtSecret, jwtExpirationInSeconds } = require("../../config/config");
 // const { userInfo } = require("os");
@@ -32,49 +34,73 @@ const encryptPassword = (password) => {
   };
   module.exports = {
     register:async (req,res)=>{
+
       const payload = req.body;
       const payload_email = payload.email
+      let existingUser, transaction
       //checks if email exist
-      const existingUser = await UserModel.findUser({"email":payload_email})
-      if (existingUser){
+     
+        
+      try {
+         //create a transaction
+      transaction = await db_transaction()
+      existingUser = await UserModel.findUser({"email":payload_email},{transaction})
+      if (existingUser ){
         return res.status(400).json({
           "status":"Bad request",
           "message":"Email already exist",
           "statusCode":400
         })
       }
-
+     
       let encryptedPassword = encryptPassword(payload.password)
-      let user = await UserModel.createUser(Object.assign(payload,{password:encryptedPassword}))
-      user = user.toJSON()
-      const accessToken = generateAccessToken(payload.email,user.userId)
-     try {
-      return res.status(200).json({
-        "status":"success",
-        "message":"Registration successful",
-        "data":{
-          "accessToken":accessToken,
-          "user":{
-            "userId":user.userId,
-            "firstName":user.firstName,
-            "lastName":user.lastName,
-            "email":user.email,
-            "phone":user.phone
+      //create a new user with the encrypted [password]
+      let user = await UserModel.createUser(Object.assign(payload,{password:encryptedPassword}),{transaction})
+      
+      //create a new organisation for every user
+      let newOrganisation = await OrganisationModel.createOrganisation({
+          "name":`${user.firstName}'s Organisation`,
+          "description":`${user.firstName}' organisation`,
+          "createdBy":`${user.firstName} ${user.lastName}`
+        },{transaction})
+        //associate the user with the organisation
+        await user.addOrganisation(newOrganisation,{transaction})
+        //commit transaaction
+        await transaction.commit()
+       
+        const accessToken = generateAccessToken(payload.email,user.userId)
+        user = user.toJSON()
+        return res.status(200).json({
+          "status":"success",
+          "message":"Registration successful",
+          "data":{
+            "accessToken":accessToken,
+            "user":{
+              "userId":user.userId,
+              "firstName":user.firstName,
+              "lastName":user.lastName,
+              "email":user.email,
+              "phone":user.phone
+            }
           }
+        })
+       }catch (error){
+        // const transaction = await db_transaction()
+        if(transaction){
+          await transaction.rollback()
         }
-      })
-     }catch (error){
-      return res.status(400).json({
-        "status":"Bad request",
-        "Message":"Registration unsuccessful",
-        "statusCode":400
-      })
-    }
-  },
+        return res.status(400).json({
+          "status":"Bad request",
+          "Message":"Registration unsuccessful",
+          "statusCode":400,
+          "error": error
+        })
+      }
+    },
   login : async (req,res)=>{
     const {email, password} = req.body
     const user = await UserModel.findUser({ email })
-    console.log(`this is --${user.phone}`)
+  //check for user
       if (!user){
         return res.status(401).json({
           "status":false,
@@ -92,7 +118,7 @@ const encryptPassword = (password) => {
         })}
         try {
         const accessToken = generateAccessToken(user.email,user.userId)
-        console.log(`this is access --${accessToken}`)
+        // console.log(`this is access --${accessToken}`)
         return res.status(200).json({
           "status":"success",
           "message":"Login successful",

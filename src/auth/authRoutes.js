@@ -5,10 +5,11 @@ const AuthorizationController = require("./authController");
 
 // Middleware Imports
 const SchemaValidationMiddleware = require("../middlewares/SchemaValidationMiddleware");
-
+const errorHandler = require('../middlewares/errorHandling')
 // // JSON Schema Imports for payload verification
 const registerPayload = require("../schemas/registerPayload");
 const loginPayload = require("../schemas/loginPayload");
+
 
 router.post(
     "/register",

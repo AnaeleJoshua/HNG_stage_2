@@ -14,6 +14,9 @@ module.exports = {
     lastName: {
       type: 'string'
     },
+    phone: {
+      type: 'string'
+    },
   },
   required: [
     'email',

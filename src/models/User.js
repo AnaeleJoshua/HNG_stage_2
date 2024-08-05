@@ -18,7 +18,7 @@ const UserModel = {
   
   firstName: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   lastName: {
     type: DataTypes.STRING,
@@ -26,6 +26,7 @@ const UserModel = {
   },
   phone: {
     type: DataTypes.STRING,
+    allowNull:true
   }
 };
 
