@@ -85,7 +85,6 @@ const encryptPassword = (password) => {
           }
         })
        }catch (error){
-        // const transaction = await db_transaction()
         if(transaction){
           await transaction.rollback()
         }
@@ -118,7 +117,6 @@ const encryptPassword = (password) => {
         })}
         try {
         const accessToken = generateAccessToken(user.email,user.userId)
-        // console.log(`this is access --${accessToken}`)
         return res.status(200).json({
           "status":"success",
           "message":"Login successful",
