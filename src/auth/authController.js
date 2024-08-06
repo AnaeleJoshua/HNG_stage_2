@@ -47,6 +47,7 @@ const encryptPassword = (password) => {
       transaction = await db_transaction()
       existingUser = await UserModel.findUser({"email":payload_email},{transaction})
       if (existingUser ){
+        await transaction.rollback()
         return res.status(400).json({
           "status":"Bad request",
           "message":"Email already exist",
@@ -87,7 +88,11 @@ const encryptPassword = (password) => {
         })
        }catch (error){
         if(transaction){
-          await transaction.rollback()
+          try {
+            await transaction.rollback(); // Ensure rollback happens in case of error
+          } catch (rollbackError) {
+            console.error('Transaction rollback failed:', rollbackError);
+          }
         }
         return res.status(400).json({
           "status":"Bad request",
