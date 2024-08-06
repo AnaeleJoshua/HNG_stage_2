@@ -52,7 +52,7 @@ const encryptPassword = (password) => {
          //create a transaction
       existingUser = await UserModel.findUser({"email":payload_email})
       if (existingUser ){
-        await transaction.rollback()
+        // await transaction.rollback()
         return res.status(400).json({
           "status":"Bad request",
           "message":"Email already exist",
