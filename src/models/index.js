@@ -28,7 +28,7 @@ try{
 
 //db transaction
 const db_transaction = async ()=>{
-  return sequelize.transaction()
+  return await sequelize.transaction()
 }
 // initializing the model on sequelize
 const User = UserModel.initialize(sequelize)
