@@ -47,10 +47,10 @@ const encryptPassword = (password) => {
 //   return await sequelize.transaction()
 // }
 //transaction
-const transaction = await sequelize.transaction()
+// const transaction = await sequelize.transaction()
       try {
          //create a transaction
-      existingUser = await UserModel.findUser({"email":payload_email},{transaction})
+      existingUser = await UserModel.findUser({"email":payload_email})
       if (existingUser ){
         await transaction.rollback()
         return res.status(400).json({
@@ -62,18 +62,18 @@ const transaction = await sequelize.transaction()
      
       let encryptedPassword = encryptPassword(payload.password)
       //create a new user with the encrypted [password]
-      let user = await UserModel.createUser(Object.assign(payload,{password:encryptedPassword}),{transaction})
+      let user = await UserModel.createUser(Object.assign(payload,{password:encryptedPassword}))
       
       //create a new organisation for every user
       let newOrganisation = await OrganisationModel.createOrganisation({
           "name":`${user.firstName}'s Organisation`,
           "description":`${user.firstName}' organisation`,
           "createdBy":`${user.firstName} ${user.lastName}`
-        },{transaction})
+        })
         //associate the user with the organisation
-        await user.addOrganisation(newOrganisation,{transaction})
+        await user.addOrganisation(newOrganisation)
         //commit transaaction
-        await transaction.commit()
+        // await transaction.commit()
        
         const accessToken = generateAccessToken(payload.email,user.userId)
         user = user.toJSON()
@@ -92,13 +92,13 @@ const transaction = await sequelize.transaction()
           }
         })
        }catch (error){
-        if(transaction){
-          try {
-            await transaction.rollback(); // Ensure rollback happens in case of error
-          } catch (rollbackError) {
-            console.error('Transaction rollback failed:', rollbackError);
-          }
-        }
+        // if(transaction){
+        //   try {
+        //     await transaction.rollback(); // Ensure rollback happens in case of error
+        //   } catch (rollbackError) {
+        //     console.error('Transaction rollback failed:', rollbackError);
+        //   }
+        // }
         return res.status(400).json({
           "status":"Bad request",
           "Message":"Registration unsuccessful",
