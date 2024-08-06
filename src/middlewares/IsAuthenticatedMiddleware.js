@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
-const { jwtSecret } = require("../../config/config")
-
+const  dotenv = require('dotenv')
+dotenv.config()
 module.exports = {
     check:(req,res,next)=>{
         const authHeader = req.headers['authorization']
@@ -39,8 +39,9 @@ module.exports = {
       })
     }
 
-    const verified = jwt.verify(token,jwtSecret,{algorithms:['HS256']},(err,user)=>{
-        if (err) {
+    const verified = jwt.verify(token,process.env.JWT_SECRET,{algorithms:['HS256']},(err,user)=>{
+       
+      if (err) {
             return res.status(403).json({
               status: false,
               error: 'Invalid access token provided, please login again.',
