@@ -3,7 +3,8 @@ const crypto = require("crypto");
 const dotenv = require('dotenv')
 dotenv.config()
 const UserModel = require("../models/User");
-const db_transaction = require('../models/index').db_transaction
+const {sequelize} = require("../models/index");
+// const db_transaction = require('../models/index').db_transaction
 const OrganisationModel = require("../models/Organisation");
 
 // const { jwtSecret, jwtExpirationInSeconds } = require("../../config/config");
@@ -38,13 +39,17 @@ const encryptPassword = (password) => {
 
       const payload = req.body;
       const payload_email = payload.email
-      let existingUser, transaction
+      let existingUser
       //checks if email exist
      
-        
+        //db transaction
+// const db_transaction = async ()=>{
+//   return await sequelize.transaction()
+// }
+//transaction
+const transaction = await sequelize.transaction()
       try {
          //create a transaction
-      transaction = await db_transaction()
       existingUser = await UserModel.findUser({"email":payload_email},{transaction})
       if (existingUser ){
         await transaction.rollback()
