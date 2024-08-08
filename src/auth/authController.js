@@ -77,6 +77,7 @@ const encryptPassword = (password) => {
        
         const accessToken = generateAccessToken(payload.email,user.userId)
         user = user.toJSON()
+        console.log(`access token: ${accessToken}`)
         return res.status(200).json({
           "status":"success",
           "message":"Registration successful",
