@@ -99,14 +99,14 @@ if(!(transaction instanceof Transaction) ){
         await transaction.commit()
         
         console.log('association added successfully')
-        const accessToken = generateAccessToken(payload.email,user.userId)
+        // const accessToken = generateAccessToken(payload.email,user.userId)
         
         console.log(`access token: ${accessToken}`)
         return res.status(200).json({
           "status":"success",
           "message":"Registration successful",
           "data":{
-            "accessToken":accessToken,
+            // "accessToken":accessToken,
             "user":{
               "userId":user.userId,
               "firstName":user.firstName,
