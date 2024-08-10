@@ -1,14 +1,13 @@
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const dotenv = require('dotenv')
+const {Transaction} = require('sequelize')
 dotenv.config()
 const UserModel = require("../models/User");
 const {sequelize} = require("../models/index");
+
 // const db_transaction = require('../models/index').db_transaction
 const OrganisationModel = require("../models/Organisation");
-
-// const { jwtSecret, jwtExpirationInSeconds } = require("../../config/config");
-// const { userInfo } = require("os");
 
 // Generates an Access Token using username and userId for the user's authentication
 const generateAccessToken = (email, userId) => {
@@ -34,7 +33,9 @@ const encryptPassword = (password) => {
     // Get the encrypted value in hexadecimal format
     return hash.digest("hex");
   };
+
   module.exports = {
+
     register:async (req,res)=>{
 
       const payload = req.body;
@@ -46,13 +47,17 @@ const encryptPassword = (password) => {
 // const db_transaction = async ()=>{
 //   return await sequelize.transaction()
 // }
-//transaction
-// const transaction = await sequelize.transaction()
+
+
+//create transaction
+const transaction = await sequelize.transaction()
+if(!(transaction instanceof Transaction) ){
+  throw new Error('Invalid transaction object')
+}
       try {
-         //create a transaction
-      existingUser = await UserModel.findUser({"email":payload_email})
+      existingUser = await UserModel.findUser({"email":payload_email},{transaction})
       if (existingUser ){
-        // await transaction.rollback()
+        await transaction.rollback()
         return res.status(400).json({
           "status":"Bad request",
           "message":"Email already exist",
@@ -63,17 +68,36 @@ const encryptPassword = (password) => {
       let encryptedPassword = encryptPassword(payload.password)
       //create a new user with the encrypted [password]
       let user = await UserModel.createUser(Object.assign(payload,{password:encryptedPassword}))
-      
+      if (!user){
+        await transaction.rollback()
+        return res.status(400).json({
+          "status":"Bad request",
+          "message":"User not created",
+          "statusCode":400
+        })
+      }
       //create a new organisation for every user
       let newOrganisation = await OrganisationModel.createOrganisation({
           "name":`${user.firstName}'s Organisation`,
           "description":`${user.firstName}' organisation`,
           "createdBy":`${user.firstName} ${user.lastName}`
         })
+        if (!newOrganisation){
+          await transaction.rollback()
+          return res.status(400).json({
+            "status":"Bad request",
+            "message":"organisation not",
+            "statusCode":400
+          })
+        }
         //associate the user with the organisation
-        await user.addOrganisation(newOrganisation)
-        //commit transaaction
-        // await transaction.commit()
+       const result =  await user.addOrganisation(newOrganisation,{transaction})
+       if (!result && result.length < 0){
+        throw new Error('failed to add association')
+       }
+       console.log('association added successfully')
+        // commit transaaction
+        await transaction.commit()
        
         const accessToken = generateAccessToken(payload.email,user.userId)
         user = user.toJSON()

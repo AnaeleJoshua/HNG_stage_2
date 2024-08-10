@@ -7,29 +7,37 @@ const UserOrganisationModel = require("./UserOrganisation");
 
 let sequelize
 try{
-  //  sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD,{
-  //   host:"localhost",
-  //   dialect: "postgres",
-  //   // storage: "./storage/data.db", // Path to the file that will store the SQLite DB.
-  // });
+   sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD,{
+    host:"localhost",
+    dialect: "postgres",
+    // storage: "./storage/data.db", // Path to the file that will store the SQLite DB.
+  });
 
-   sequelize = new Sequelize(process.env.POSTGRES_URL, {
-    dialect: 'postgres',
-    dialectModule:require('pg'),
-    protocol: 'postgres',
-    logging: false,
-});
-// console.log(sequelize)
+//    sequelize = new Sequelize(process.env.POSTGRES_URL, {
+//     dialect: 'postgres',
+//     dialectModule:require('pg'),
+//     protocol: 'postgres',
+//     logging: false,
+// });
+console.log(`sequelize object ${sequelize}`)
 
 
 }catch(err){
-  console.log(`sequelize connection not created: ${err}`)
+  if (err instanceof ConnectionError){
+    console.error('Connection error:', err.original)
+    console.log(`sequelize connection not created: ${err}`)
+  }
+  else if (err instanceof TimeoutError) {
+    console.error('Timeout error:', err.original);
+  } 
 }
 
 //db transaction
 const db_transaction = async ()=>{
   return await sequelize.transaction()
 }
+
+// console.log(`this is db_transaction: ${db_transaction}`)
 // initializing the model on sequelize
 const User = UserModel.initialize(sequelize)
 const Organisation = OrganisationModel.initialize(sequelize)
