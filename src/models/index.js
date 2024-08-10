@@ -23,11 +23,11 @@ console.log(`sequelize object ${sequelize}`)
 
 
 }catch(err){
-  if (err instanceof ConnectionError){
+  if (err instanceof Sequelize.ConnectionError){
     console.error('Connection error:', err.original)
     console.log(`sequelize connection not created: ${err}`)
   }
-  else if (err instanceof TimeoutError) {
+  else if (err instanceof Sequelize.TimeoutError) {
     console.error('Timeout error:', err.original);
   } 
 }
