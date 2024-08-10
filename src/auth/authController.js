@@ -95,18 +95,18 @@ if(!(transaction instanceof Transaction) ){
        if (!result && result.length < 0){
         throw new Error('failed to add association')
        }
+       console.log('association added successfully')
        // commit transaaction
         await transaction.commit()
         
-        console.log('association added successfully')
-        // const accessToken = generateAccessToken(payload.email,user.userId)
+        const accessToken = generateAccessToken(payload.email,user.userId)
         
         console.log(`access token: ${accessToken}`)
         return res.status(200).json({
           "status":"success",
           "message":"Registration successful",
           "data":{
-            // "accessToken":accessToken,
+            "accessToken":accessToken,
             "user":{
               "userId":user.userId,
               "firstName":user.firstName,
@@ -117,18 +117,18 @@ if(!(transaction instanceof Transaction) ){
           }
         })
        }catch (error){
-        // if(transaction){
-        //   try {
-        //     await transaction.rollback(); // Ensure rollback happens in case of error
-        //   } catch (rollbackError) {
-        //     console.error('Transaction rollback failed:', rollbackError);
-        //   }
-        // }
+        if(transaction){
+          try {
+            await transaction.rollback(); // Ensure rollback happens in case of error
+          } catch (rollbackError) {
+            console.error('Transaction rollback failed:', rollbackError);
+          }
+        }
         return res.status(400).json({
           "status":"Bad request",
           "Message":"Registration unsuccessful",
           "statusCode":400,
-          "error": error
+          "error": error.message
         })
       }
     },
