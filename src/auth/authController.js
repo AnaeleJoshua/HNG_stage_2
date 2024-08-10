@@ -95,10 +95,10 @@ if(!(transaction instanceof Transaction) ){
        if (!result && result.length < 0){
         throw new Error('failed to add association')
        }
-       console.log('association added successfully')
-        // commit transaaction
+       // commit transaaction
         await transaction.commit()
-       
+        
+        console.log('association added successfully')
         const accessToken = generateAccessToken(payload.email,user.userId)
         
         console.log(`access token: ${accessToken}`)
