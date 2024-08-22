@@ -76,25 +76,25 @@ if(!(transaction instanceof Transaction) ){
           "statusCode":400
         })
       }
-      //create a new organisation for every user
-      // let newOrganisation = await OrganisationModel.createOrganisation({
-      //     "name":`${user.firstName}'s Organisation`,
-      //     "description":`${user.firstName}' organisation`,
-      //     "createdBy":`${user.firstName} ${user.lastName}`
-      //   })
-        // if (!newOrganisation){
-        //   await transaction.rollback()
-        //   return res.status(400).json({
-        //     "status":"Bad request",
-        //     "message":"organisation not",
-        //     "statusCode":400
-        //   })
-        // }
-        //associate the user with the organisation
-      //  const result =  await user.addOrganisation(newOrganisation,{transaction})
-      //  if (!result && result.length < 0){
-      //   throw new Error('failed to add association')
-      //  }
+      // create a new organisation for every user
+      let newOrganisation = await OrganisationModel.createOrganisation({
+          "name":`${user.firstName}'s Organisation`,
+          "description":`${user.firstName}' organisation`,
+          "createdBy":`${user.firstName} ${user.lastName}`
+        })
+        if (!newOrganisation){
+          await transaction.rollback()
+          return res.status(400).json({
+            "status":"Bad request",
+            "message":"organisation not",
+            "statusCode":400
+          })
+        }
+        // associate the user with the organisation
+       const result =  await user.addOrganisation(newOrganisation,{transaction})
+       if (!result && result.length < 0){
+        throw new Error('failed to add association')
+       }
        console.log('association added successfully')
        // commit transaaction
         await transaction.commit()
