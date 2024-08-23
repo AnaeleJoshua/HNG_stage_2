@@ -47,21 +47,10 @@ const encryptPassword = (password) => {
 // const db_transaction = async ()=>{
 //   return await sequelize.transaction()
 // }
-<<<<<<< HEAD
-
-
-//create transaction
-const transaction = await sequelize.transaction()
-if(!(transaction instanceof Transaction) ){
-  throw new Error('Invalid transaction object')
-}
-      try {
-=======
 //transaction
 const transaction = await sequelize.transaction()
       try {
          //create a transaction
->>>>>>> NewFeature
       existingUser = await UserModel.findUser({"email":payload_email},{transaction})
       if (existingUser ){
         await transaction.rollback()
@@ -74,53 +63,19 @@ const transaction = await sequelize.transaction()
      
       let encryptedPassword = encryptPassword(payload.password)
       //create a new user with the encrypted [password]
-<<<<<<< HEAD
-      let user = await UserModel.createUser(Object.assign(payload,{password:encryptedPassword}))
-      if (!user){
-        await transaction.rollback()
-        return res.status(400).json({
-          "status":"Bad request",
-          "message":"User not created",
-          "statusCode":400
-        })
-      }
-      // create a new organisation for every user
-=======
       let user = await UserModel.createUser(Object.assign(payload,{password:encryptedPassword}),{transaction})
       
       //create a new organisation for every user
->>>>>>> NewFeature
       let newOrganisation = await OrganisationModel.createOrganisation({
           "name":`${user.firstName}'s Organisation`,
           "description":`${user.firstName}' organisation`,
           "createdBy":`${user.firstName} ${user.lastName}`
-<<<<<<< HEAD
-        })
-        if (!newOrganisation){
-          await transaction.rollback()
-          return res.status(400).json({
-            "status":"Bad request",
-            "message":"organisation not",
-            "statusCode":400
-          })
-        }
-        // associate the user with the organisation
-       const result =  await user.addOrganisation(newOrganisation,{transaction})
-       if (!result && result.length < 0){
-        throw new Error('failed to add association')
-       }
-       console.log('association added successfully')
-       // commit transaaction
-        await transaction.commit()
-        
-=======
         },{transaction})
         //associate the user with the organisation
         await user.addOrganisation(newOrganisation,{transaction})
         //commit transaaction
         await transaction.commit()
        
->>>>>>> NewFeature
         const accessToken = generateAccessToken(payload.email,user.userId)
         
         console.log(`access token: ${accessToken}`)
