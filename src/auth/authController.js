@@ -47,10 +47,10 @@ const encryptPassword = (password) => {
 //   return await sequelize.transaction()
 // }
 //transaction
-// const transaction = await sequelize.transaction()
+const transaction = await sequelize.transaction()
       try {
          //create a transaction
-      existingUser = await UserModel.findUser({"email":payload_email})
+      existingUser = await UserModel.findUser({"email":payload_email},{transaction})
       if (existingUser ){
         // await transaction.rollback()
         return res.status(400).json({
@@ -62,18 +62,18 @@ const encryptPassword = (password) => {
      
       let encryptedPassword = encryptPassword(payload.password)
       //create a new user with the encrypted [password]
-      let user = await UserModel.createUser(Object.assign(payload,{password:encryptedPassword}))
+      let user = await UserModel.createUser(Object.assign(payload,{password:encryptedPassword}),{transaction})
       
       //create a new organisation for every user
       let newOrganisation = await OrganisationModel.createOrganisation({
           "name":`${user.firstName}'s Organisation`,
           "description":`${user.firstName}' organisation`,
           "createdBy":`${user.firstName} ${user.lastName}`
-        })
+        },{transaction})
         //associate the user with the organisation
-        await user.addOrganisation(newOrganisation)
+        await user.addOrganisation(newOrganisation,{transaction})
         //commit transaaction
-        // await transaction.commit()
+        await transaction.commit()
        
         const accessToken = generateAccessToken(payload.email,user.userId)
         user = user.toJSON()
@@ -92,13 +92,13 @@ const encryptPassword = (password) => {
           }
         })
        }catch (error){
-        // if(transaction){
-        //   try {
-        //     await transaction.rollback(); // Ensure rollback happens in case of error
-        //   } catch (rollbackError) {
-        //     console.error('Transaction rollback failed:', rollbackError);
-        //   }
-        // }
+        if(transaction){
+          try {
+            await transaction.rollback(); // Ensure rollback happens in case of error
+          } catch (rollbackError) {
+            console.error('Transaction rollback failed:', rollbackError);
+          }
+        }
         return res.status(400).json({
           "status":"Bad request",
           "Message":"Registration unsuccessful",
@@ -109,7 +109,9 @@ const encryptPassword = (password) => {
     },
   login : async (req,res)=>{
     const {email, password} = req.body
-    const user = await UserModel.findUser({ email })
+    //create transaction object
+    const transaction = await sequelize.transaction()
+    const user = await UserModel.findUser({ email },{transaction})
   //check for user
       if (!user){
         return res.status(401).json({
@@ -126,6 +128,8 @@ const encryptPassword = (password) => {
           "message":"Authentication failed",
           "statusCode": 401
         })}
+        //commit transaction
+        await transaction.commit()
         try {
         const accessToken = generateAccessToken(user.email,user.userId)
         return res.status(200).json({
@@ -144,6 +148,13 @@ const encryptPassword = (password) => {
         })
         
     }catch(err){
+      if(transaction){
+        try{
+          await transaction.rollback()
+        }catch(rollbackError){
+          console.error(`rollback error: ${rollbackError}`)
+        }
+      }
       res.status(500).json({
         "status":"Bad request",
         "message":"Authentication failed",
