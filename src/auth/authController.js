@@ -47,6 +47,7 @@ const encryptPassword = (password) => {
 // const db_transaction = async ()=>{
 //   return await sequelize.transaction()
 // }
+<<<<<<< HEAD
 
 
 //create transaction
@@ -55,6 +56,12 @@ if(!(transaction instanceof Transaction) ){
   throw new Error('Invalid transaction object')
 }
       try {
+=======
+//transaction
+const transaction = await sequelize.transaction()
+      try {
+         //create a transaction
+>>>>>>> NewFeature
       existingUser = await UserModel.findUser({"email":payload_email},{transaction})
       if (existingUser ){
         await transaction.rollback()
@@ -67,6 +74,7 @@ if(!(transaction instanceof Transaction) ){
      
       let encryptedPassword = encryptPassword(payload.password)
       //create a new user with the encrypted [password]
+<<<<<<< HEAD
       let user = await UserModel.createUser(Object.assign(payload,{password:encryptedPassword}))
       if (!user){
         await transaction.rollback()
@@ -77,10 +85,16 @@ if(!(transaction instanceof Transaction) ){
         })
       }
       // create a new organisation for every user
+=======
+      let user = await UserModel.createUser(Object.assign(payload,{password:encryptedPassword}),{transaction})
+      
+      //create a new organisation for every user
+>>>>>>> NewFeature
       let newOrganisation = await OrganisationModel.createOrganisation({
           "name":`${user.firstName}'s Organisation`,
           "description":`${user.firstName}' organisation`,
           "createdBy":`${user.firstName} ${user.lastName}`
+<<<<<<< HEAD
         })
         if (!newOrganisation){
           await transaction.rollback()
@@ -99,6 +113,14 @@ if(!(transaction instanceof Transaction) ){
        // commit transaaction
         await transaction.commit()
         
+=======
+        },{transaction})
+        //associate the user with the organisation
+        await user.addOrganisation(newOrganisation,{transaction})
+        //commit transaaction
+        await transaction.commit()
+       
+>>>>>>> NewFeature
         const accessToken = generateAccessToken(payload.email,user.userId)
         
         console.log(`access token: ${accessToken}`)
@@ -134,7 +156,9 @@ if(!(transaction instanceof Transaction) ){
     },
   login : async (req,res)=>{
     const {email, password} = req.body
-    const user = await UserModel.findUser({ email })
+    //create transaction object
+    const transaction = await sequelize.transaction()
+    const user = await UserModel.findUser({ email },{transaction})
   //check for user
       if (!user){
         return res.status(401).json({
@@ -151,6 +175,8 @@ if(!(transaction instanceof Transaction) ){
           "message":"Authentication failed",
           "statusCode": 401
         })}
+        //commit transaction
+        await transaction.commit()
         try {
         const accessToken = generateAccessToken(user.email,user.userId)
         return res.status(200).json({
@@ -169,6 +195,13 @@ if(!(transaction instanceof Transaction) ){
         })
         
     }catch(err){
+      if(transaction){
+        try{
+          await transaction.rollback()
+        }catch(rollbackError){
+          console.error(`rollback error: ${rollbackError}`)
+        }
+      }
       res.status(500).json({
         "status":"Bad request",
         "message":"Authentication failed",
