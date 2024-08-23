@@ -13,12 +13,12 @@ try{
     // storage: "./storage/data.db", // Path to the file that will store the SQLite DB.
   });
 
-  //  sequelize = new Sequelize(process.env.POSTGRES_URL, {
-  //   dialect: 'postgres',
-  //   dialectModule:require('pg'),
-  //   protocol: 'postgres',
-  //   logging: false,
-// });
+   sequelize = new Sequelize(process.env.POSTGRES_URL, {
+    dialect: 'postgres',
+    dialectModule:require('pg'),
+    protocol: 'postgres',
+    logging: false,
+});
 // console.log(sequelize)
 
 
