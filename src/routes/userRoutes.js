@@ -5,6 +5,6 @@ const User = require('../models/User')
 
 
 router.get('/:id',[isAuthenticated.check,UserController.getUserById])
-router.put('/update/:id',UserController.updateUser)
+router.put('/update/:id',[isAuthenticated.check,UserController.updateUser])
 
 module.exports = router
